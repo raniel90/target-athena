@@ -22,8 +22,7 @@ setup(name="target-athena",
           'singer-sdk==^0.1.0',
           'inflection==0.5.1',
           'boto3==1.17.39',
-          'PyAthena==2.2.0',
-          'pyarrow==8.0.0'
+          'PyAthena==2.2.0'
       ],
       extras_require={
           "test": [
