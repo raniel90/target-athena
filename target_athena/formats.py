@@ -4,6 +4,7 @@ import os
 import csv
 import json
 import pyarrow as pa
+import pyarrow.parquet as pq
 
 def write_csv(filename, record, header=None, delimiter= ",", quotechar='"'):
 
@@ -48,4 +49,4 @@ def write_jsonl(filename, record):
 
 
 def write_parquet(filename, record):
-    pa.parquet.write_table(pa.Table.from_pydict(record),filename)
+    pq.write_table(pa.Table.from_pydict(record),filename)
