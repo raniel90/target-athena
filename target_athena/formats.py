@@ -6,6 +6,10 @@ import json
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+import singer
+
+LOGGER = singer.get_logger('target_athena')
+
 def write_csv(filename, record, header=None, delimiter= ",", quotechar='"'):
 
     file_is_empty = (not os.path.isfile(filename)) or os.stat(
@@ -49,5 +53,5 @@ def write_jsonl(filename, record):
 
 
 def write_parquet(filename, record):
-    print(f"RANIEL", record, filename, type(record))
+    LOGGER.info(f"RANIELRANIELRANIEL: {record} #####TYPE: {type(record)}  #####FILENAME: {filename}")
     pq.write_table(pa.Table.from_pydict(record),filename)
