@@ -116,7 +116,7 @@ class AthenaSink(BatchSink):
                     record = flattened_record
                 )
             elif object_format == 'parquet':
-                formats.write_parquet(
+                headers = formats.write_parquet(
                     filename = filename,
                     record = flattened_record
                 )
