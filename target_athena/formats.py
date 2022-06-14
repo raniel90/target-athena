@@ -3,6 +3,7 @@
 import os
 import csv
 import json
+import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
@@ -53,5 +54,10 @@ def write_jsonl(filename, record):
 
 
 def write_parquet(filename, record):
-    LOGGER.info(f"RANIELRANIELRANIEL: {record} #####TYPE: {type(record)}  #####FILENAME: {filename}")
-    pq.write_table(pa.Table.from_pydict(record),filename)
+    df_normalized = pd.json_normalize(record)
+    pa_table = pa.Table.from_pandas(df_normalized)
+
+    with pq.ParquetWriter(filename, pa_table.schema) as writer:
+        writer.write_table(pa_table)
+    
+    del df_normalized
