@@ -115,6 +115,11 @@ class AthenaSink(BatchSink):
                     filename = filename,
                     record = flattened_record
                 )
+            elif object_format == 'parquet':
+                formats.write_parquet(
+                    filename = filename,
+                    record = flattened_record
+                )
             else:
                 self.logger.warn(f"Unrecognized format: '{object_format}'")
 
@@ -145,6 +150,16 @@ class AthenaSink(BatchSink):
                 skip_header=False,
                 row_format="org.openx.data.jsonserde.JsonSerDe",
                 serdeproperties="'ignore.malformed.json'='true', 'case.insensitive'='true'"
+            )
+        elif object_format == 'parquet':
+            ddl = athena.generate_create_table_ddl(
+                self._clean_table_name(self.stream_name),
+                self.schema,
+                headers=headers,
+                database=self.config.get("athena_database"),
+                data_location=data_location,
+                skip_header=False,
+                row_format="org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"
             )
         else:
             self.logger.warn(f"Unrecognized format: '{object_format}'")

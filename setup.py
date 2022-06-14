@@ -23,6 +23,7 @@ setup(name="target-athena",
           'inflection==0.5.1',
           'boto3==1.17.39',
           'PyAthena==2.2.0',
+          'pyarrow==8.0.0'
       ],
       extras_require={
           "test": [
