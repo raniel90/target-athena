@@ -49,4 +49,5 @@ def write_jsonl(filename, record):
 
 
 def write_parquet(filename, record):
+    print(f"RANIEL", record, filename, type(record))
     pq.write_table(pa.Table.from_pydict(record),filename)
