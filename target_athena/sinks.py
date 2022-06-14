@@ -57,6 +57,7 @@ class AthenaSink(BatchSink):
         records_to_drain = context["records"]
         state = None
         headers = {}
+        parquet_metadata = {}
         headers = self.schema["properties"].keys()
 
         object_format = self.config.get("object_format")
@@ -76,7 +77,7 @@ class AthenaSink(BatchSink):
         now = datetime.now().strftime("%Y%m%dT%H%M%S")
 
         # Serialize records to local files
-        for record in records_to_drain:
+        for idx, record in enumerate(records_to_drain):
             filename = self.stream_name + "-" + now + "." + object_format
             filename = os.path.expanduser(os.path.join(temp_dir, filename))
             s3_prefix = "{prefix}{database}/".format(
@@ -102,6 +103,10 @@ class AthenaSink(BatchSink):
             else:
                 flattened_record = record
 
+            if object_format == 'parquet' and idx == 0:
+                parquet_metadata = formats.get_parquet_metadata(filename, record)
+                headers = parquet_metadata.get('headers')
+
             if object_format == 'csv':
                 formats.write_csv(
                     filename = filename,
@@ -116,9 +121,9 @@ class AthenaSink(BatchSink):
                     record = flattened_record
                 )
             elif object_format == 'parquet':
-                headers = formats.write_parquet(
-                    filename = filename,
-                    record = flattened_record
+                formats.write_parquet(
+                    record = flattened_record,
+                    parquet_metadata = parquet_metadata
                 )
             else:
                 self.logger.warn(f"Unrecognized format: '{object_format}'")
@@ -159,7 +164,8 @@ class AthenaSink(BatchSink):
                 database=self.config.get("athena_database"),
                 data_location=data_location,
                 skip_header=False,
-                row_format="org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"
+                row_format="org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe",
+                object_format='parquet'
             )
         else:
             self.logger.warn(f"Unrecognized format: '{object_format}'")

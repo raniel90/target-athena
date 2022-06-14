@@ -170,6 +170,7 @@ def generate_create_table_ddl(
     row_format="org.apache.hadoop.hive.serde2.OpenCSVSerde",
     serdeproperties = "'case.insensitive'='true'",
     skip_header = True,
+    object_format = None
 ):
     """Generate DDL for Hive table creation.
 
@@ -191,7 +192,12 @@ def generate_create_table_ddl(
         field_definitions = ",\n".join(["  `{}` STRING".format(_) for _ in headers])
     external_marker = "EXTERNAL " if external else ""
     row_format = "ROW FORMAT SERDE '{serde}'".format(serde=row_format) if row_format else ""
+    
     stored = "\nSTORED AS TEXTFILE"
+    
+    if object_format == 'parquet':
+        stored = ''
+
     serdeproperties = "\nWITH SERDEPROPERTIES ({})".format(serdeproperties) if serdeproperties else ""
     location = "\nLOCATION '{}'".format(data_location) if external else ""
     tblproperties = '\nTBLPROPERTIES ("skip.header.line.count" = "1")' if skip_header else ""

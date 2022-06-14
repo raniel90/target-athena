@@ -53,14 +53,24 @@ def write_jsonl(filename, record):
         json_file.write(json.dumps(record, default=str) + '\n')
 
 
-def write_parquet(filename, record):
+def write_parquet(record, parquet_metadata):
     df_normalized = pd.json_normalize(record)
     pa_table = pa.Table.from_pandas(df_normalized)
-    headers = df_normalized.columns.values.tolist()
-
-    with pq.ParquetWriter(filename, pa_table.schema) as writer:
-        writer.write_table(pa_table)
+    parquet_metadata.get('writer').write_table(pa_table)
     
     del df_normalized
 
-    return headers
+
+def get_parquet_metadata(filename, record):
+    df_normalized = pd.json_normalize(record)
+    pa_table = pa.Table.from_pandas(df_normalized)
+    headers = df_normalized.columns.values.tolist()
+    writer = pq.ParquetWriter(filename, pa_table.schema)
+    
+    del df_normalized
+
+    return {
+        'schema': pa_table.schema,
+        'headers': headers,
+        'writer': writer
+    }
